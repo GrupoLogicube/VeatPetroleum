@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="es" class="dark scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VEATPETROLEUM CIA LTDA - Inspección y Control de Calidad</title>
+    <link rel="icon" href="icon.png" type="icon.png">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563EB',
+                        secondary: '#3B82F6',
+                        accent: '#F97316',
+                        darkBg: '#0f172a',
+                        darkCard: '#1e293b',
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'], },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Liquid Glass */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+
+        .dark .glass-panel {
+            background: rgba(30, 41, 59, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        /* SPA Transitions */
+        .page-section {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+            transform: translateY(10px);
+        }
+
+        .page-section.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Hero Bg */
+        .hero-bg {
+            transition: background-image 1s ease-in-out;
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Hero Card Transitions */
+        .hero-card-slide {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            transform: scale(0.95);
+            pointer-events: none;
+        }
+
+        .hero-card-slide.active {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+            z-index: 10;
+        }
+
+        /* Progress Bar */
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .dark .progress-bar-container {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .progress-bar-fill {
+            background: #F97316;
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease-out;
+            box-shadow: 0 0 10px rgba(249, 115, 22, 0.8);
+        }
+
+        /* Dropdown specific */
+        .dropdown-menu {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+            transform: translateY(-5px);
+        }
+
+        .group:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+
+<body
+    class="bg-slate-50 dark:bg-darkBg text-slate-800 dark:text-slate-100 transition-colors duration-300 min-h-screen flex flex-col">
+
+    <!-- NavBar -->
+    <nav class="fixed w-full z-50 glass-panel border-b border-white/20 dark:border-slate-700/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center cursor-pointer" onclick="navigate('hero')">
+                    <!-- Logos para VEATPETROLEUM (Claro/Oscuro intercambiable) -->
+                    <img src="logo_oscuro.png" alt="Veatpetroleum Logo" class="h-13 md:h-16 object-contain dark:hidden">
+                    <img src="logo_claro.png" alt="Veatpetroleum Logo"
+                        class="h-13 md:h-16 object-contain hidden dark:block">
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-6">
+                    <button onclick="navigate('hero')"
+                        class="nav-btn text-sm font-medium hover:text-accent transition-colors">Inicio</button>
+
+                    <!-- Dropdown Nosotros -->
+                    <div class="relative group">
+                        <button
+                            class="nav-btn text-sm font-medium hover:text-accent transition-colors flex items-center gap-1">
+                            Nosotros <i data-lucide="chevron-down"
+                                class="w-4 h-4 transition-transform group-hover:rotate-180"></i>
+                        </button>
+                        <div class="absolute left-0 mt-2 w-64 dropdown-menu origin-top-left">
+                            <div class="glass-panel rounded-xl overflow-hidden py-2 shadow-xl">
+                                <button onclick="navigateNosotros('mision')"
+                                    class="w-full text-left px-4 py-3 text-sm hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors">Misión</button>
+                                <button onclick="navigateNosotros('vision')"
+                                    class="w-full text-left px-4 py-3 text-sm hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors">Visión</button>
+                                <button onclick="navigateNosotros('alcance')"
+                                    class="w-full text-left px-4 py-3 text-sm hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors">Alcance
+                                    del Sistema de Gestión</button>
+                                <button onclick="navigateNosotros('politica')"
+                                    class="w-full text-left px-4 py-3 text-sm hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors">Política
+                                    de Calidad</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dropdown Servicios -->
+                    <div class="relative group">
+                        <button
+                            class="nav-btn text-sm font-medium hover:text-accent transition-colors flex items-center gap-1"
+                            onclick="navigate('servicios'); jumpToService(0);">
+                            Servicios <i data-lucide="chevron-down"
+                                class="w-4 h-4 transition-transform group-hover:rotate-180"></i>
+                        </button>
+                        <div class="absolute left-0 mt-2 w-72 dropdown-menu origin-top-left">
+                            <div class="glass-panel rounded-xl overflow-hidden py-2 shadow-xl">
+                                <button onclick="jumpToService(0)"
+                                    class="w-full text-left px-4 py-3 text-sm hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors">Alcances
+                                    de Inspección</button>
+                                <button onclick="jumpToService(1)"
+                                    class="w-full text-left px-4 py-3 text-sm hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors">Pruebas
+                                    Hidrostáticas</button>
+                                <button onclick="jumpToService(2)"
+                                    class="w-full text-left px-4 py-3 text-sm hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors">Pruebas
+                                    de Estanqueidad</button>
+                                <button onclick="jumpToService(3)"
+                                    class="w-full text-left px-4 py-3 text-sm hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors">Inspección
+                                    de Soldaduras</button>
+                                <button onclick="jumpToService(4)"
+                                    class="w-full text-left px-4 py-3 text-sm hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors">UT-
+                                    Medición de Espesores</button>
+                                <button onclick="jumpToService(5)"
+                                    class="w-full text-left px-4 py-3 text-sm hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors">Mantenimiento
+                                    Preventivo</button>
+                                <button onclick="jumpToService(6)"
+                                    class="w-full text-left px-4 py-3 text-sm hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors">Calibración
+                                    y Verificación</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="navigate('contacto')"
+                        class="nav-btn text-sm font-medium hover:text-accent transition-colors">Contacto</button>
+
+                    <!-- Theme Toggle -->
+                    <button id="theme-toggle"
+                        class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                        <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+                        <i data-lucide="sun" class="w-5 h-5 hidden dark:block text-white-400"></i>
+                    </button>
+                </div>
+
+                <!-- Mobile btn -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="p-2 rounded-md hover:bg-slate-200 dark:hover:bg-slate-700">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Hidden -->
+        <div id="mobile-menu"
+            class="md:hidden hidden glass-panel border-t border-white/10 overflow-y-auto max-h-[80vh]">
+            <div class="px-4 pt-2 pb-6 space-y-1">
+                <button onclick="navigate('hero'); closeMobile()"
+                    class="block w-full text-left px-3 py-2 font-medium">Inicio</button>
+                <div class="px-3 py-2 text-sm text-accent font-semibold">Nosotros</div>
+                <button onclick="navigateNosotros('mision'); closeMobile()"
+                    class="block w-full text-left pl-6 py-2 text-sm">Misión</button>
+                <button onclick="navigateNosotros('vision'); closeMobile()"
+                    class="block w-full text-left pl-6 py-2 text-sm">Visión</button>
+                <button onclick="navigateNosotros('alcance'); closeMobile()"
+                    class="block w-full text-left pl-6 py-2 text-sm">Alcance SGC</button>
+                <button onclick="navigateNosotros('politica'); closeMobile()"
+                    class="block w-full text-left pl-6 py-2 text-sm">Política de Calidad</button>
+
+                <div class="px-3 py-2 mt-2 text-sm text-accent font-semibold">Servicios</div>
+                <button onclick="jumpToService(0); closeMobile()"
+                    class="block w-full text-left pl-6 py-2 text-sm">Alcances de Inspección</button>
+                <button onclick="jumpToService(1); closeMobile()"
+                    class="block w-full text-left pl-6 py-2 text-sm">Pruebas Hidrostáticas</button>
+                <button onclick="jumpToService(3); closeMobile()"
+                    class="block w-full text-left pl-6 py-2 text-sm">Inspección de Soldaduras</button>
+                <button onclick="jumpToService(4); closeMobile()" class="block w-full text-left pl-6 py-2 text-sm">UT-
+                    Medición Espesores</button>
+                <!--... others-->
+
+                <button onclick="navigate('contacto'); closeMobile()"
+                    class="block w-full text-left px-3 py-2 font-medium mt-2">Contacto</button>
+                <button id="theme-toggle-mobile"
+                    class="mt-4 flex items-center gap-2 px-3 py-2 font-medium text-primary">
+                    <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+                    <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+                    <span class="dark:hidden">Modo Oscuro</span><span class="hidden dark:block">Modo Claro</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN APP CONTENT -->
+    <main id="app-content" class="flex-grow pt-20">
+
+        <!-- 1. HERO SECTION -->
+        <section id="hero"
+            class="page-section active relative min-h-[calc(100vh-5rem)] flex flex-col justify-between overflow-x-hidden">
+            <div id="hero-bg-div" class="absolute inset-0 hero-bg bg-fixed"
+                style="background-image: url('https://placehold.co/1920x1080/1e293b/334155?text=Inspeccion+Industrial');">
+                <div
+                    class="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/60 to-transparent dark:from-black/90 dark:via-black/70 mix-blend-multiply">
+                </div>
+            </div>
+
+            <div
+                class="relative z-10 container mx-auto px-4 py-16 sm:py-24 flex flex-col lg:flex-row justify-between items-center flex-grow">
+
+                <!-- Left: Title -->
+                <div class="max-w-2xl mb-12 lg:mb-0 lg:w-1/2">
+                    <span
+                        class="inline-block py-1 px-3 rounded-full bg-primary/20 text-blue-300 border border-primary/30 text-sm font-semibold mb-6 tracking-wide uppercase shadow-[0_0_15px_rgba(37,99,235,0.4)]">
+                        +15 Años de Experiencia
+                    </span>
+                    <h1 class="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+                        Integridad Técnica en el <span
+                            class="text-transparent bg-clip-text bg-gradient-to-r from-accent to-yellow-400">Sector
+                            Petrolero</span>
+                    </h1>
+                </div>
+
+                <!-- Right: Principios Single Card Info -->
+                <div
+                    class="w-full lg:w-5/12 relative mt-8 lg:mt-0 flex flex-col justify-center items-center h-64 md:h-80">
+                    <h3 class="text-white text-lg font-semibold tracking-wide mb-4 w-full text-left uppercase">Nuestros
+                        Principios Generales</h3>
+
+                    <!-- Absolute Arrows -->
+                    <button onclick="moveHeroCard(-1)"
+                        class="absolute left-0 top-[60%] -translate-y-1/2 -ml-4 md:-ml-6 p-3 rounded-full bg-primary/80 hover:bg-primary text-white z-20 shadow-[0_0_20px_rgba(37,99,235,0.5)] transition-transform hover:scale-110">
+                        <i data-lucide="chevron-left" class="w-6 h-6"></i>
+                    </button>
+                    <button onclick="moveHeroCard(1)"
+                        class="absolute right-0 top-[60%] -translate-y-1/2 -mr-4 md:-mr-6 p-3 rounded-full bg-primary/80 hover:bg-primary text-white z-20 shadow-[0_0_20px_rgba(37,99,235,0.5)] transition-transform hover:scale-110">
+                        <i data-lucide="chevron-right" class="w-6 h-6"></i>
+                    </button>
+
+                    <!-- The Single Rendering Card Area -->
+                    <div id="hero-card-container" class="relative w-full h-full">
+                        <!-- C1 -->
+                        <div
+                            class="hero-card-slide active glass-panel w-full h-full rounded-2xl p-6 md:p-8 flex flex-col justify-center box-border">
+                            <p class="text-sm md:text-base text-white leading-relaxed font-medium">Personal capacitado
+                                con más de 15 años de experiencia en Fiscalización y Control de Calidad. Todas las
+                                inspecciones se realizan con equipos calibrados por laboratorios acreditados bajo la ISO
+                                17025.</p>
+                        </div>
+                        <!-- C2 -->
+                        <div
+                            class="hero-card-slide glass-panel w-full h-full rounded-2xl p-6 md:p-8 flex flex-col justify-center box-border">
+                            <p class="text-sm md:text-base text-white leading-relaxed font-medium">VEATPETROLEUM CIA
+                                LTDA constituye como requerimiento la completa imparcialidad, independencia y
+                                confidencialidad. No interviene en el diseño, fabricación, o compras.</p>
+                        </div>
+                        <!-- C3 -->
+                        <div
+                            class="hero-card-slide glass-panel w-full h-full rounded-2xl p-6 md:p-8 flex flex-col justify-center box-border">
+                            <p class="text-sm md:text-base text-white leading-relaxed font-medium">Con base en la
+                                confianza, nos comprometemos al resguardo total de la información obtenida en las
+                                inspecciones, protegiéndola celosamente de terceras personas sin excepción.</p>
+                        </div>
+                        <!-- C4 -->
+                        <div
+                            class="hero-card-slide glass-panel w-full h-full rounded-2xl p-6 md:p-8 flex flex-col justify-center box-border">
+                            <p class="text-sm md:text-base text-white leading-relaxed font-medium">El personal
+                                involucrado y contratistas se encuentran comprometidos con el desarrollo de actividades
+                                con el más alto grado de ética profesional, imparcialidad e independencia obligatoria.
+                            </p>
+                        </div>
+                    </div>
+                    <!-- pagination dots -->
+                    <div id="hero-dots" class="flex gap-2 mt-4">
+                        <div class="w-2 h-2 rounded-full bg-accent transition-all"></div>
+                        <div class="w-2 h-2 rounded-full bg-white/40 transition-all"></div>
+                        <div class="w-2 h-2 rounded-full bg-white/40 transition-all"></div>
+                        <div class="w-2 h-2 rounded-full bg-white/40 transition-all"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Section Quality -->
+            <div
+                class="relative z-10 w-full glass-panel border-t-0 rounded-none bg-white/95 dark:bg-slate-900/95 shadow-2xl">
+                <div class="max-w-7xl mx-auto flex flex-col lg:flex-row">
+                    <div class="p-8 lg:w-1/2 flex flex-col justify-center">
+                        <h2 class="text-2xl md:text-3xl font-bold mb-2 text-slate-900 dark:text-white">Estás en las
+                            mejores manos.</h2>
+                        <h3 class="text-lg text-accent font-semibold tracking-wide uppercase mb-6">Cinco puntos de
+                            calidad:</h3>
+                        <ul class="space-y-4">
+                            <li class="flex items-start gap-3"><i data-lucide="check-circle-2"
+                                    class="w-6 h-6 text-primary flex-shrink-0"></i><span
+                                    class="font-medium text-slate-700 dark:text-slate-300">Equipos calibrados por
+                                    laboratorio ISO 17025.</span></li>
+                            <li class="flex items-start gap-3"><i data-lucide="check-circle-2"
+                                    class="w-6 h-6 text-primary flex-shrink-0"></i><span
+                                    class="font-medium text-slate-700 dark:text-slate-300">Inventario de equipos y
+                                    programa de calibración.</span></li>
+                            <li class="flex items-start gap-3"><i data-lucide="check-circle-2"
+                                    class="w-6 h-6 text-primary flex-shrink-0"></i><span
+                                    class="font-medium text-slate-700 dark:text-slate-300">Cada equipo tiene su ficha de
+                                    mantenimiento.</span></li>
+                            <li class="flex items-start gap-3"><i data-lucide="check-circle-2"
+                                    class="w-6 h-6 text-primary flex-shrink-0"></i><span
+                                    class="font-medium text-slate-700 dark:text-slate-300">Almacenamiento acorde con
+                                    tipo de equipo.</span></li>
+                            <li class="flex items-start gap-3"><i data-lucide="check-circle-2"
+                                    class="w-6 h-6 text-primary flex-shrink-0"></i><span
+                                    class="font-medium text-slate-700 dark:text-slate-300">Equipos análogos y digitales
+                                    de alta precisión.</span></li>
+                        </ul>
+                    </div>
+                    <div class="lg:w-1/2 h-64 lg:h-auto relative overflow-hidden bg-slate-200 dark:bg-slate-800">
+                        <div id="quality-slider"
+                            class="absolute inset-0 flex transition-transform duration-700 ease-in-out"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. SERVICIOS SECTION -->
+        <section id="servicios" class="page-section min-h-screen py-16 px-4 sm:px-6 relative overflow-hidden">
+            <div
+                class="absolute -top-40 right-20 w-[400px] h-[400px] bg-primary/10 dark:bg-primary/5 blur-[100px] rounded-full -z-10 animate-float">
+            </div>
+
+            <div class="max-w-7xl mx-auto flex flex-col justify-center h-full">
+                <div class="text-center mb-8">
+                    <h2 class="text-sm font-bold text-accent tracking-widest uppercase mb-2">Podemos Ofrecerte:</h2>
+                    <h1 class="text-4xl md:text-5xl font-bold dark:text-white text-slate-900 tracking-tight">Catálogo de
+                        Servicios</h1>
+                </div>
+
+                <!-- PROGRESS BAR -->
+                <div class="max-w-5xl mx-auto w-full mb-6 relative">
+                    <p class="text-xs text-right text-slate-500 mb-2 font-semibold tracking-wider"
+                        id="services-counter">1/7</p>
+                    <div class="progress-bar-container">
+                        <div id="services-progress" class="progress-bar-fill"></div>
+                    </div>
+                </div>
+
+                <div class="relative max-w-5xl mx-auto w-full">
+                    <!-- Carousel Slider (Responsive height auto/flex-col on mobile) -->
+                    <div class="overflow-hidden glass-panel rounded-3xl shadow-xl dark:shadow-2xl">
+                        <div id="services-track" class="flex transition-transform duration-500 ease-out">
+                            <!-- Injected JS -->
+                        </div>
+                    </div>
+
+                    <button onclick="moveService(-1)"
+                        class="absolute top-1/2 -left-3 md:-left-8 -translate-y-1/2 w-12 h-12 md:w-16 md:h-16 bg-white dark:bg-slate-800 rounded-full shadow-lg flex items-center justify-center text-primary hover:scale-110 transition-transform z-10 border border-slate-100 dark:border-slate-700">
+                        <i data-lucide="chevron-left" class="w-6 h-6 md:w-8 md:h-8"></i>
+                    </button>
+                    <button onclick="moveService(1)"
+                        class="absolute top-1/2 -right-3 md:-right-8 -translate-y-1/2 w-12 h-12 md:w-16 md:h-16 bg-white dark:bg-slate-800 rounded-full shadow-lg flex items-center justify-center text-primary hover:scale-110 transition-transform z-10 border border-slate-100 dark:border-slate-700">
+                        <i data-lucide="chevron-right" class="w-6 h-6 md:w-8 md:h-8"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. NOSOTROS SECTION -->
+        <section id="nosotros" class="page-section min-h-screen py-16 px-4">
+            <div class="max-w-4xl mx-auto pt-10">
+                <div class="text-center mb-12">
+                    <h2 class="text-sm font-bold text-accent tracking-widest uppercase mb-2">Identidad</h2>
+                    <h1 class="text-4xl md:text-5xl font-bold dark:text-white text-slate-900 tracking-tight">Quiénes
+                        Somos</h1>
+                </div>
+
+                <!-- Tabs container fallback -->
+                <div class="flex flex-wrap justify-center gap-2 mb-10">
+                    <button onclick="showNosotrosContent('mision')"
+                        class="nosotros-tab px-5 py-2 rounded-full text-sm font-medium transition-all"
+                        data-tab="mision">Misión</button>
+                    <button onclick="showNosotrosContent('vision')"
+                        class="nosotros-tab px-5 py-2 rounded-full text-sm font-medium transition-all"
+                        data-tab="vision">Visión</button>
+                    <button onclick="showNosotrosContent('alcance')"
+                        class="nosotros-tab px-5 py-2 rounded-full text-sm font-medium transition-all"
+                        data-tab="alcance">Alcance</button>
+                    <button onclick="showNosotrosContent('politica')"
+                        class="nosotros-tab px-5 py-2 rounded-full text-sm font-medium transition-all"
+                        data-tab="politica">Política</button>
+                </div>
+
+                <!-- Content Box -->
+                <div class="glass-panel p-8 md:p-12 rounded-3xl relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent z-0"></div>
+                    <div class="relative z-10">
+                        <div id="icon-container"
+                            class="w-16 h-16 rounded-2xl bg-white dark:bg-slate-800 shadow-md flex items-center justify-center mb-8 border border-slate-100 dark:border-slate-700">
+                        </div>
+                        <h2 id="nosotros-title" class="text-3xl font-bold mb-6 text-slate-800 dark:text-white">...</h2>
+                        <div id="nosotros-body"
+                            class="prose prose-lg dark:prose-invert max-w-none text-slate-600 dark:text-slate-300 leading-relaxed">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. CONTACTO SECTION: 2 Columns Redesign -->
+        <section id="contacto" class="page-section min-h-screen py-24 px-4 bg-slate-100 dark:bg-slate-900 relative">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center mb-16">
+                    <h1 class="text-4xl md:text-5xl font-bold dark:text-white text-slate-900 tracking-tight mb-4">
+                        Contáctenos</h1>
+                    <p class="text-lg text-slate-600 dark:text-slate-400">Estamos listos para asistirle con soluciones
+                        de inspección técnica de primer nivel.</p>
+                </div>
+
+                <div class="flex flex-col lg:flex-row gap-12 max-w-6xl mx-auto">
+                    <!-- Left: Contact Info -->
+                    <div class="lg:w-5/12 space-y-6">
+                        <div class="glass-panel p-8 rounded-3xl h-full flex flex-col justify-center space-y-8">
+                            <h3 class="text-2xl font-bold dark:text-white mb-2">Nuestra Matriz</h3>
+
+                            <div class="flex items-start gap-4">
+                                <div class="p-3 bg-primary/10 rounded-xl text-primary"><i data-lucide="map-pin"
+                                        class="w-6 h-6"></i></div>
+                                <div>
+                                    <p class="font-semibold dark:text-white">Dirección de la Empresa</p>
+                                    <p class="text-slate-600 dark:text-slate-400 text-sm">S48F Y E2, URBANIZACIÓN
+                                        BELLATERRA<br>HC-78</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-4">
+                                <div class="p-3 bg-primary/10 rounded-xl text-primary"><i data-lucide="phone"
+                                        class="w-6 h-6"></i></div>
+                                <div>
+                                    <p class="font-semibold dark:text-white">Teléfono</p><a href="tel:+593998380002"
+                                        class="text-slate-600 dark:text-slate-400 text-sm hover:text-primary transition-colors">(593)
+                                        99-838-0002</a>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-4">
+                                <div class="p-3 bg-primary/10 rounded-xl text-primary"><i data-lucide="mail"
+                                        class="w-6 h-6"></i></div>
+                                <div>
+                                    <p class="font-semibold dark:text-white">Correos</p>
+                                    <a href="mailto:info@veatpetroleum.com"
+                                        class="block text-slate-600 dark:text-slate-400 text-sm hover:text-primary">info@veatpetroleum.com</a>
+                                    <a href="mailto:pcalero@veatpetroleum.com"
+                                        class="block text-slate-600 dark:text-slate-400 text-sm hover:text-primary mt-1">Gerencia:
+                                        pcalero@veatpetroleum.com</a>
+                                </div>
+                            </div>
+
+                            <hr class="border-slate-200 dark:border-slate-700 my-4">
+
+                            <div class="flex gap-4">
+                                <a href="https://www.facebook.com/veatpetroleum/" target="_blank"
+                                    class="flex items-center justify-center w-12 h-12 bg-[#1877F2] text-white rounded-full hover:scale-110 transition-transform shadow-lg"
+                                    aria-label="Facebook">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path
+                                            d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                                    </svg>
+                                </a>
+
+                                <a href="https://api.whatsapp.com/send?phone=593998380002" target="_blank"
+                                    class="flex items-center justify-center w-12 h-12 bg-[#25D366] text-white rounded-full hover:scale-110 transition-transform shadow-lg"
+                                    aria-label="WhatsApp">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path
+                                            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Form -->
+                    <div class="lg:w-7/12">
+                        <div class="glass-panel p-8 md:p-10 rounded-3xl bg-white/50 dark:bg-slate-800/80">
+                            <form class="space-y-5">
+                                <div class="flex flex-col md:flex-row gap-5">
+                                    <div class="w-full"><label
+                                            class="block text-sm font-medium mb-1 dark:text-slate-200">Nombre <span
+                                                class="text-red-500">*</span></label><input type="text" required
+                                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 text-slate-800 dark:text-slate-100">
+                                    </div>
+                                    <div class="w-full"><label
+                                            class="block text-sm font-medium mb-1 dark:text-slate-200">Apellido <span
+                                                class="text-red-500">*</span></label><input type="text" required
+                                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 text-slate-800 dark:text-slate-100">
+                                    </div>
+                                </div>
+                                <div class="flex flex-col md:flex-row gap-5">
+                                    <div class="w-full"><label
+                                            class="block text-sm font-medium mb-1 dark:text-slate-200">Teléfono</label><input
+                                            type="tel"
+                                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 text-slate-800 dark:text-slate-100">
+                                    </div>
+                                    <div class="w-full"><label
+                                            class="block text-sm font-medium mb-1 dark:text-slate-200">Asunto <span
+                                                class="text-red-500">*</span></label><input type="text" required
+                                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 text-slate-800 dark:text-slate-100">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-1 dark:text-slate-200">Línea de Interés
+                                        (Servicio)</label>
+                                    <select
+                                        class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 text-slate-800 dark:text-slate-100 appearance-none">
+                                        <option>Alcances de Inspección</option>
+                                        <option>Pruebas Hidrostáticas</option>
+                                        <option>Pruebas de Estanqueidad</option>
+                                        <option>Inspección de Soldaduras</option>
+                                        <option>UT- Medición de Espesores</option>
+                                        <option>Mantenimiento Preventivo</option>
+                                        <option>Calibración y Verificación</option>
+                                        <option class="text-accent font-semibold">Quejas y Apelaciones</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-1 dark:text-slate-200">Mensaje <span
+                                            class="text-red-500">*</span></label>
+                                    <textarea required rows="4"
+                                        class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 text-slate-800 dark:text-slate-100 resize-none"></textarea>
+                                </div>
+                                <button type="button"
+                                    class="w-full bg-accent hover:bg-orange-600 text-white font-semibold py-4 px-6 rounded-lg transition-colors shadow-lg shadow-accent/30 tracking-wide">Enviar
+                                    Mensaje Seguro</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer
+        class="glass-panel border-t border-white/20 dark:border-slate-800 py-8 text-center text-slate-500 dark:text-slate-400 text-sm z-10 w-full relative">
+        <p>
+            &copy; 2026 VEATPETROLEUM CIA LTDA. Todos los derechos reservados. <br>
+            Desarrollado por <strong>Logicube Solutions</strong>.
+        </p>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        // Theme Toggle
+        const htmlNode = document.documentElement;
+        const toggleTheme = () => htmlNode.classList.toggle('dark');
+        document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+        document.getElementById('theme-toggle-mobile').addEventListener('click', toggleTheme);
+
+        // Mobile Menu
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+        const closeMobile = () => mobileMenu.classList.add('hidden');
+
+        // SPA Navigation
+        const sections = ['hero', 'servicios', 'nosotros', 'contacto'];
+        function navigate(sectionId) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            sections.forEach(id => {
+                const el = document.getElementById(id);
+                if (id === sectionId) {
+                    el.style.display = 'flex';
+                    setTimeout(() => el.classList.add('active'), 20);
+                } else {
+                    el.classList.remove('active');
+                    setTimeout(() => { if (!el.classList.contains('active')) el.style.display = 'none'; }, 400);
+                }
+            });
+        }
+
+        // Nosotros Content
+        const nosotrosData = {
+            mision: { icon: "target", title: "Nuestra Misión", content: "Somos un organismo de Inspección acreditado, que, mediante la aplicación de técnicas especializadas, equipo de trabajo calificado y los mejores estándares de calidad, brindan y garantizan servicios de integridad para la industria." },
+            vision: { icon: "eye", title: "Nuestra Visión", content: "Ser un organismo de Inspección, reconocido en la industria, por la competencia técnica de su talento humano, equipamiento acorde al desarrollo de las tecnologías y por la implementación permanente de servicios innovadores y certificaciones internacionales." },
+            alcance: { icon: "network", title: "Alcance del Sistema de Gestión de Calidad", content: "La empresa se compromete con la ISO que utilizan, 17025." },
+            politica: { icon: "shield-check", title: "Política de Calidad", content: "<p><strong>SETE CORREA MIÑO Cía. Ltda.</strong> es una empresa ecuatoriana dedicada a la prestación de servicios de Inspección y Calibración de equipos en Ensayos No Destructivos e Inspección y Certificación de Equipos y Accesorios de Izaje...<br/></p><p>Nuestra política de calidad se manifiesta mediante firme compromiso con nuestros clientes... garantizamos impulsar una cultura de calidad basada en imparcialidad, integridad, y cumplimiento.</p>" }
+        };
+
+        function navigateNosotros(tabKey) {
+            navigate('nosotros');
+            showNosotrosContent(tabKey);
+        }
+
+        function showNosotrosContent(tabKey) {
+            const data = nosotrosData[tabKey];
+            document.querySelectorAll('.nosotros-tab').forEach(btn => {
+                const isMatch = btn.getAttribute('data-tab') === tabKey;
+                btn.classList.toggle('bg-primary', isMatch);
+                btn.classList.toggle('text-white', isMatch);
+                btn.classList.toggle('shadow-md', isMatch);
+                btn.classList.toggle('bg-white', !isMatch);
+                btn.classList.toggle('dark:bg-slate-800', !isMatch);
+            });
+            document.getElementById('icon-container').innerHTML = `<i data-lucide="${data.icon}" class="w-8 h-8 text-primary"></i>`;
+            lucide.createIcons();
+            document.getElementById('nosotros-title').innerHTML = data.title;
+            document.getElementById('nosotros-body').innerHTML = data.content;
+        }
+        showNosotrosContent('mision');
+
+        // Hero Single Card Navigator
+        const heroSlides = document.querySelectorAll('.hero-card-slide');
+        const heroDots = document.getElementById('hero-dots').children;
+        let hkIdx = 0;
+        function updateHeroCard() {
+            heroSlides.forEach((s, idx) => {
+                s.classList.toggle('active', idx === hkIdx);
+                heroDots[idx].classList.toggle('bg-accent', idx === hkIdx);
+                heroDots[idx].classList.toggle('bg-white/40', idx !== hkIdx);
+            });
+        }
+        function moveHeroCard(dir) {
+            hkIdx = (hkIdx + dir + heroSlides.length) % heroSlides.length;
+            updateHeroCard();
+        }
+
+        // Hero BG Cycle
+        const heroBgImages = ["ImgBan1.png", "ImgBan2.png", "ImgBan3.png"];
+        let bgIdx = 0;
+        setInterval(() => {
+            bgIdx = (bgIdx + 1) % heroBgImages.length;
+            document.getElementById('hero-bg-div').style.backgroundImage = `url('${heroBgImages[bgIdx]}')`;
+        }, 5000);
+
+        // Quality Slider Cycle Right
+        const qImages = ["Img1.png", "Img2.png", "Img3.png"];
+        const rightSlider = document.getElementById('quality-slider');
+        qImages.forEach(img => rightSlider.innerHTML += `<div class="w-full h-full flex-shrink-0 bg-cover bg-center" style="background-image:url('${img}')"></div>`);
+        let qIdx = 0;
+        setInterval(() => {
+            qIdx = (qIdx + 1) % qImages.length;
+            rightSlider.style.transform = `translateX(-${qIdx * 100}%)`;
+        }, 3500);
+
+        // Servicios Carousel Logic Responsive
+        // Servicios Carousel Logic Responsive
+        const servicesList = [
+            {
+                title: "ALCANCES DE INSPECCIÓN",
+                desc: `Los alcances de inspección propuestos por la compañía se encuentran debidamente sustentados por las normas o estándares de inspección o fabricación. Los alcances de inspección que se emplearan en sus actividades son detallados a continuación: Las pruebas hidrostáticas a ductos y recipientes a presión son enfocadas a verificar la idoneidad de los activos metálicos que son sometidos a procesos de soldadura. En conformidad a la Norma ISO/IEC 17020 todos los alcances se encuentran debidamente sustentados en normas nacionales e internacionales como: ASME, ASTM, API, etc.`,
+                img: "Serv1.png"
+            },
+            {
+                title: "PRUEBAS HIDROSTÁTICAS",
+                desc: `Sometimiento de tuberías a presión de líquido de alta precisión.
+            <div class="mt-4 p-4 rounded-lg bg-primary/5 border border-primary/10">
+                        <p class="font-semibold text-slate-800 dark:text-white mb-1"><i data-lucide="crosshair" class="w-4 h-4 inline mr-1"></i> Campo de Inspección</p>
+                        <p class="text-sm mb-3">Tuberías de transporte oleoductos y derivados, líneas de procesos, sistemas contra incendios, refrigerante, químicos, Recipiente a Presión etc.</p>
+                        <p class="font-semibold text-slate-800 dark:text-white mb-1"><i data-lucide="book-open" class="w-4 h-4 inline mr-1"></i> Normativa</p>
+                        <p class="text-sm">ASME B 31.3; ASME B 31.4; ASME B 31.9; ASME VIII SEC I</p>
+                     </div>`,
+                img: "Serv3.png"
+            },
+            {
+                title: "PRUEBAS DE ESTANQUEIDAD", desc: `Análisis y certificación de cero fugas en matrices de transporte logístico.
+                        <div class="mt-4 p-4 rounded-lg bg-primary/5 border border-primary/10">
+                        <p class="font-semibold text-slate-800 dark:text-white mb-1"><i data-lucide="crosshair" class="w-4 h-4 inline mr-1"></i> Campo de Inspección</p>
+                        <p class="text-sm mb-3">Tanques verticales de almacenamiento</p>
+                        <p class="font-semibold text-slate-800 dark:text-white mb-1"><i data-lucide="book-open" class="w-4 h-4 inline mr-1"></i> Normativa</p>
+                        <p class="text-sm">API 650 – API 653</p>
+                     </div>`,
+                img: "Serv4.png"
+            },
+            {
+                title: "INSPECCION DE SOLDADURAS", desc: `Análisis END aplicado sobre juntas y fusiones metálicas.
+            <div class="mt-4 p-4 rounded-lg bg-primary/5 border border-primary/10">
+                        <p class="font-semibold text-slate-800 dark:text-white mb-1"><i data-lucide="crosshair" class="w-4 h-4 inline mr-1"></i> Campo de Inspección</p>
+                        <p class="text-sm mb-3">Soldadura en tuberías de transporte, Líneas de procesos, Estructuras metálicas, Recipientes y Tanques</p>
+                        <p class="font-semibold text-slate-800 dark:text-white mb-1"><i data-lucide="book-open" class="w-4 h-4 inline mr-1"></i> Normativa</p>
+                        <p class="text-sm">API 1104; ASME B31.4; ASME B 31.3; AWS D1.1, NEC 2015; ASTM E165; SNT TC IA-2016</p>
+                     </div>`,
+                img: "Serv5.png"
+            },
+            {
+                title: "UT- MEDICION ESPESORES", desc: `Inspección geométrica con Ultrasonido (UT) para diagnosticar desgaste, Nivel II SNT TC IA Ultrasonido – Medición espesores.
+            <div class="mt-4 p-4 rounded-lg bg-primary/5 border border-primary/10">
+                        <p class="font-semibold text-slate-800 dark:text-white mb-1"><i data-lucide="crosshair" class="w-4 h-4 inline mr-1"></i> Campo de Inspección</p>
+                        <p class="text-sm mb-3">Tuberias de transporte de oleoductos y derivados, lineas de proceso, tanques, recipientes a presión</p>
+                        <p class="font-semibold text-slate-800 dark:text-white mb-1"><i data-lucide="book-open" class="w-4 h-4 inline mr-1"></i> Normativa</p>
+                        <p class="text-sm">ASME B 31.4;ASME B 31.3;API 570;ASTM E797;SNT TC IA-2016</p>
+                     </div>`,
+                img: "Serv6.png"
+            },
+            { title: "MANTENIMIENTO PREVENTIVO", desc: "VEATPETROLEUM CIA LTDA, imparte diferentes directrices para el mantenimiento preventivo de los equipos. El mantenimiento preventivo tiene como fin precautelar a los equipos para un correcto uso y almacenamiento de los mismos. Es menester el uso adecuado de los equipos ya que un mal uso puede influir en la precisión y exactitud de los equipos.", img: "Serv7.png" },
+            { title: "CALIBRACION DE EQUIPOS", desc: "Los equipos de medición, prueba o inspección que tienen influencia en los resultados, deben ser calibrados antes de ser usados, las calibraciones de los mismos deben ser cumplidas de acuerdo a la Política sobre la Trazabilidad en Las Mediciones PL01-R03. En dicha política se recomienda la forma de establecer el periodo de calibraciones e indica que entidades son las apropiadas para las actividades de calibración.", img: "Serv8.png" }
+        ];
+
+        const serviceTrack = document.getElementById('services-track');
+        servicesList.forEach(srv => {
+            serviceTrack.innerHTML += `
+                <div class="w-full flex-shrink-0 flex flex-col md:flex-row h-full group border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+                    <div class="h-64 md:h-[500px] md:h-full md:w-1/2 relative overflow-hidden bg-white dark:bg-slate-800 flex items-center justify-center">
+                        <img src="${srv.img}" class="w-full h-full object-fill transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://placehold.co/800x600/1e293b/white?text=Imagen+No+Encontrada'"/>
+                    </div>
+                    <div class="h-auto md:h-[500px] md:h-full md:w-1/2 bg-white dark:bg-slate-900 p-6 md:p-12 flex flex-col justify-center overflow-y-auto">
+                        <div class="w-12 h-1 bg-accent mb-6 flex-shrink-0 transform origin-left transition-transform duration-500 group-hover:scale-x-150"></div>
+                        <h3 class="text-2xl md:text-3xl font-bold mb-4 text-slate-800 dark:text-white leading-tight">${srv.title}</h3>
+                        <div class="text-slate-600 dark:text-slate-400 text-base leading-relaxed">${srv.desc}</div>
+                    </div>
+                </div>`;
+        });
+
+        let currentServiceIdx = 0;
+        function updateServiceUI() {
+            serviceTrack.style.transform = `translateX(-${currentServiceIdx * 100}%)`;
+            // Progress Bar Update
+            const pct = ((currentServiceIdx + 1) / servicesList.length) * 100;
+            document.getElementById('services-progress').style.width = pct + "%";
+            document.getElementById('services-counter').innerText = `${currentServiceIdx + 1} / ${servicesList.length}`;
+        }
+        function moveService(dir) {
+            currentServiceIdx = (currentServiceIdx + dir + servicesList.length) % servicesList.length;
+            updateServiceUI();
+        }
+        function jumpToService(idx) {
+            navigate('servicios');
+            currentServiceIdx = idx;
+            setTimeout(updateServiceUI, 50); // slight delay to render transition clean
+        }
+
+        setTimeout(() => { document.getElementById('hero').classList.add('active'); updateServiceUI(); }, 100);
+
+    </script>
+</body>
+
+</html>
